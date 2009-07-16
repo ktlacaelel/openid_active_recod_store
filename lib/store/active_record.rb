@@ -10,8 +10,6 @@ module OpenID
 
       def initialize
         # XXX XXX XXX REMOVE XXX XXX XXX
-        @associations = {}
-        @associations.default = {}
         @nonces = {}
         # XXX XXX XXX REMOVE XXX XXX XXX
       end
@@ -21,8 +19,15 @@ module OpenID
       # on the character set of the server_url.  In particular, expect to see
       # unescaped non-url-safe characters in the server_url field.
       def store_association(server_url, association)
-        assocs = @associations[server_url]
-        @associations[server_url] = assocs.merge({association.handle => deepcopy(association)})
+        oa = OpenidAssociation.new
+        oa.server_url = server_url
+        oa.target = targetize(server_url)
+        oa.handle = association.handle
+        oa.secret = association.secret
+        oa.issued = association.issued
+        oa.lifetime = association.lifetime
+        oa.assoc_type = association.assoc_type
+        oa.save
       end
 
       # Returns a Association object from storage that matches
@@ -30,26 +35,21 @@ module OpenID
       # the one matching association is expired. (Is allowed to GC expired
       # associations when found.)
       def get_association(server_url, handle=nil)
-        assocs = @associations[server_url]
-        assoc = nil
-        if handle
-          assoc = assocs[handle]
-        else
-          assoc = assocs.values.sort{|a,b| a.issued <=> b.issued}[-1]
+        oas = OpenidAssociation.find_all_by_target targetize(server_url)
+        return nil if oas.empty?
+        unless handle.nil?
+          return nil unless oas.collect(&:handle).include? handle
+          return build_association(oas.find { |oa| oa.handle == handle })
         end
-
-        return assoc
+        oas.sort_by(&:issued).collect { |oa| build_association(oa) }.last
       end
 
       # If there is a matching association, remove it from the store and
       # return true, otherwise return false.
       def remove_association(server_url, handle)
-        assocs = @associations[server_url]
-        if assocs.delete(handle)
-          return true
-        else
-          return false
-        end
+        oas = OpenidAssociation.find_all_by_target targetize(server_url)
+        return false unless oas.collect(&:handle).include? handle
+        oas.find_all { |oa| oa.handle == handle }.each(&:delete).size > 0
       end
 
       # Return true if the nonce has not been used before, and store it
@@ -90,14 +90,12 @@ module OpenID
       # admins to keep their storage from filling up with expired data
       def cleanup_associations
         count = 0
-        @associations.each{|server_url, assocs|
-          assocs.each{|handle, assoc|
-            if assoc.expires_in == 0
-              assocs.delete(handle)
-              count += 1
-            end
-          }
-        }
+        oas = OpenidAssociation.all.each do |oa|
+          if build_association(oa).expires_in == 0
+            oa.delete
+            count += 1
+          end
+        end
         return count
       end
 
@@ -115,12 +113,6 @@ module OpenID
           end
         }
         return count
-      end
-
-      # XXX XXX XXX REMOVE XXX XXX XXX
-
-      def deepcopy(o)
-        Marshal.load(Marshal.dump(o))
       end
 
     end
