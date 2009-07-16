@@ -6,7 +6,7 @@ class OpenidStoreActiveRecordTest < ActiveSupport::TestCase
   # TESTING SCENARIO
   # ============================================================================
 
-  setup :prepare_scenario
+  setup :prepare_scenario, :clean_tables
   teardown :destroy_scenario
 
   def prepare_scenario
@@ -15,6 +15,12 @@ class OpenidStoreActiveRecordTest < ActiveSupport::TestCase
       'uvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     @@allowed_handle = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ' +
       'RSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+  end
+
+  def clean_tables
+  # OpenidAssociation.all.each do |ao|
+  #   ao.destroy
+  # end
   end
 
   def destroy_scenario
