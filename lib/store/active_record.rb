@@ -1,4 +1,6 @@
 
+require 'md5'
+#
 require 'openid/util'
 require 'openid/store/interface'
 require 'openid/association'
@@ -6,6 +8,8 @@ require 'openid/association'
 module OpenID
   module Store
     class ActiveRecord < Interface
+
+      include OpenidStoreActiveRecord
 
       def initialize
       end
