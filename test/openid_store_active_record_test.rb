@@ -1,8 +1,9 @@
 require 'test_helper'
 
 class OpenidStoreActiveRecordTest < ActiveSupport::TestCase
-  # Replace this with your real tests.
+
   test "the truth" do
-    assert true
+    fail 'nothing implemented'
   end
+
 end
