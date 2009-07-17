@@ -60,18 +60,18 @@ I wouldn't recomend it for production use.
 Installation
 ------------
 
-  1. Install the plugin
+  *. Install the plugin
      Note: (this will add two migrations and three models to your application)
     $ ./script/plugin install git://github.com/ktlacaelel/openid_active_recod_store.git
 
-  2. Migrate
+  *. Migrate
     $ rake db:migrate
 
-  3. Setup pass the store object to the openid consumer
+  *. Setup pass the store object to the openid consumer
     store = OpenID::Store::ActiveRecord.new
     OpenID::Consumer.new(session, store)
 
-  4. Enjoy!
+  *. Enjoy!
 
 Installation Notes
 ------------------
@@ -87,6 +87,9 @@ I personally recomend that you implement your own openid athentication system.
 
 Twicks
 ------
+
+<pre>
+<code>
 
 There is an abstract parent model for the openid models in this distribution
 so if you want to store all of your openid transactions in another
@@ -107,20 +110,23 @@ class OpenidAbstract < ActiveRecord::Base
 
 end
 
+</code>
+</pre>
+
 Dependencies
 ------------
 
-  # Rails 2.3.2
-  # ruby-openid-2.1.4
-  # ftools
-  # time
-  # md5
+  * Rails 2.3.2
+  * ruby-openid-2.1.4
+  * ftools
+  * time
+  * md5
 
 Works on / tested under
 -----------------------
 
- # ruby 1.8.7 (2008-08-11 patchlevel 72) [x86_64-linux]
- # Rails 2.3.2
+ * ruby 1.8.7 (2008-08-11 patchlevel 72) [x86_64-linux]
+ * Rails 2.3.2
 
 LICENSE
 -------
