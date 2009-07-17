@@ -8,7 +8,7 @@ class InstallOpenIdActiveRecordStore
   def initialize
     show_banner
     check_system_cosistency
-    execute_installation
+    copy_migration_files
   end
 
   def here
@@ -38,7 +38,7 @@ class InstallOpenIdActiveRecordStore
     sources.each { |file| validate_file_existance(file) }
   end
 
-  def execute_installation
+  def copy_migration_files
     sources.each do |file|
       File.copy(file, target)
       puts "
