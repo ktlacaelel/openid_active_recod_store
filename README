@@ -88,7 +88,10 @@ database you only need to add a line like this.
 class OpenidAbstract < ActiveRecord::Base
 
   # Append this line, and edit the corresponding configuration in your
-  # (config/database.yml)file
+  # (config/database.yml) file
+  # Note: do this by creating a new model with the same name in your
+  # app and simply overload, so if you need plugin updates you dont
+  # need to repatch anything.
   establish_connection(:openid_active_record_store)
 
   def self.abstract_class?
