@@ -1,4 +1,4 @@
-class OpenidNonce < ActiveRecord::Base
+class OpenidNonce < OpenidAbstract
 
   # attempt to scan timestamps (integers) first for fast access.
   def self.exists_by_target?(timestamp, salt, target)

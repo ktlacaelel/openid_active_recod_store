@@ -1,2 +1,2 @@
-class OpenidAssociation < ActiveRecord::Base
+class OpenidAssociation < OpenidAbstract
 end
