@@ -1,7 +1,8 @@
 OpenidStoreActiveRecord
 =======================
 
-=Introduction
+Introduction
+------------
 
 ActiveRecord Store driver for ruby-openid (rails plugin)
 
@@ -11,7 +12,8 @@ active-record. this trade gave this plugin the capability
 of accessing various databases and abstract details away from what this
 plugin really is suppose to do.
 
-=Who should use this?
+Who should use this?
+--------------------
 
 By using this plugin you can now sync your cluster and make sure all
 openid transactions are being redirected to the right place.
@@ -20,7 +22,8 @@ If your server is an independent machine you'll probably don't need
 this unless you really, really want the openid transactions to live
 in your database
 
-=Reliability === Tests
+Reliability === Tests
+---------------------
 
 How well tested is this library?
 
@@ -43,7 +46,8 @@ pass the tests right out of the box.
 If your using another testing-framework then create a brand-new rails-app
 and run the plugin tests (see the known bugs section)
 
-=Known bugs
+Known bugs
+----------
 
 The ActiveRecord Sqlite driver does not escape properly and it fails
 to insert data sometimes depending on the complexity of the
@@ -53,7 +57,8 @@ So until that problem is fixed or someone decides to patch up this
 plugin and sanitize stuff before they are handled to active record
 I wouldn't recomend it for production use.
 
-=Installation
+Installation
+------------
 
   1. Install the plugin
      Note: (this will add two migrations and three models to your application)
@@ -68,7 +73,8 @@ I wouldn't recomend it for production use.
 
   4. Enjoy!
 
-=Installation Notes
+Installation Notes
+------------------
 
 If you are using an authentication plugin for openid you might have
 to patch that code yourself and tell it to use this storage-driver.
@@ -79,7 +85,8 @@ get it to work.
 
 I personally recomend that you implement your own openid athentication system.
 
-=Twicks
+Twicks
+------
 
 There is an abstract parent model for the openid models in this distribution
 so if you want to store all of your openid transactions in another
@@ -100,7 +107,8 @@ class OpenidAbstract < ActiveRecord::Base
 
 end
 
-=Dependencies
+Dependencies
+------------
 
   # Rails 2.3.2
   # ruby-openid-2.1.4
@@ -108,13 +116,15 @@ end
   # time
   # md5
 
-=Works on / tested under
+Works on / tested under
+-----------------------
 
  # ruby 1.8.7 (2008-08-11 patchlevel 72) [x86_64-linux]
  # Rails 2.3.2
 
-=LICENSE
+LICENSE
+-------
 
 Copyright (c) 2009 [Kazuyoshi Tlacaelel], released under the MIT license
 
-=The End
+The End
