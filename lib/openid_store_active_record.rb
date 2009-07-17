@@ -28,6 +28,14 @@ module OpenidStoreActiveRecord
       )
     end
 
+    def create_nonce(server_url, timestamp, salt)
+      open_id_nonce = OpenidNonce.new
+      open_id_nonce.target = targetize(server_url)
+      open_id_nonce.server_url = server_url
+      open_id_nonce.timestamp = timestamp
+      open_id_nonce.save
+    end
+
   end
 
 end

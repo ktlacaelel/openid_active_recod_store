@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'openid/store/nonce'
 
 class OpenidStoreActiveRecordTest < ActiveSupport::TestCase
 
@@ -18,9 +19,9 @@ class OpenidStoreActiveRecordTest < ActiveSupport::TestCase
   end
 
   def clean_tables
-  # OpenidAssociation.all.each do |ao|
-  #   ao.destroy
-  # end
+    # super duper make sure talbes are empty
+    OpenidAssociation.all.each { |ao| ao.destroy }
+    OpenidNonce.all.each { |nonce| nonce.destroy }
   end
 
   def destroy_scenario
@@ -28,7 +29,8 @@ class OpenidStoreActiveRecordTest < ActiveSupport::TestCase
   end
 
   # ============================================================================
-  # METHODS BROUGHT FROM THE ORIGINAL 'ruby-openid' test suite
+  # TESTS BELOW BROUGHT FROM THE ORIGINAL 'ruby-openid' (store) test suite
+  # these methods test the association interactivity with a store object
   # ============================================================================
 
   def _gen_secret(n, chars=nil)
@@ -163,6 +165,69 @@ class OpenidStoreActiveRecordTest < ActiveSupport::TestCase
 
     cleaned = @store.cleanup_associations()
     assert_equal(2, cleaned, "cleaned up associations")
+  end
+
+  # ============================================================================
+  # am including open id here because the nonce module is not being mocked
+  # ============================================================================
+  include OpenID
+
+  # ============================================================================
+  # TESTS BELOW BROUGHT FROM THE ORIGINAL 'ruby-openid' (store) test suite
+  # these methods test the nonce interactivity with a store object
+  # ============================================================================
+
+  def _check_use_nonce(nonce, expected, server_url, msg='')
+    stamp, salt = Nonce::split_nonce(nonce)
+    actual = @store.use_nonce(server_url, stamp, salt)
+    assert_equal(expected, actual, msg)
+  end
+
+  def test_nonce
+    server_url = "http://www.myopenid.com/openid"
+    [server_url, ''].each{|url|
+      nonce1 = Nonce::mk_nonce
+
+      _check_use_nonce(nonce1, true, url, "#{url}: nonce allowed by default")
+      _check_use_nonce(nonce1, false, url, "#{url}: nonce not allowed twice")
+      _check_use_nonce(nonce1, false, url, "#{url}: nonce not allowed third time")
+
+      # old nonces shouldn't pass
+      old_nonce = Nonce::mk_nonce(3600)
+      _check_use_nonce(old_nonce, false, url, "Old nonce #{old_nonce.inspect} passed")
+
+    }
+
+    now = Time.now.to_i
+    old_nonce1 = Nonce::mk_nonce(now - 20000)
+    old_nonce2 = Nonce::mk_nonce(now - 10000)
+    recent_nonce = Nonce::mk_nonce(now - 600)
+
+    orig_skew = Nonce.skew
+    Nonce.skew = 0
+    count = @store.cleanup_nonces
+    Nonce.skew = 1000000
+    ts, salt = Nonce::split_nonce(old_nonce1)
+    assert(@store.use_nonce(server_url, ts, salt), "oldnonce1")
+    ts, salt = Nonce::split_nonce(old_nonce2)
+    assert(@store.use_nonce(server_url, ts, salt), "oldnonce2")
+    ts, salt = Nonce::split_nonce(recent_nonce)
+    assert(@store.use_nonce(server_url, ts, salt), "recent_nonce")
+
+
+    Nonce.skew = 1000
+    cleaned = @store.cleanup_nonces
+    assert_equal(2, cleaned, "Cleaned #{cleaned} nonces")
+
+    Nonce.skew = 100000
+    ts, salt = Nonce::split_nonce(old_nonce1)
+    assert(@store.use_nonce(server_url, ts, salt), "oldnonce1 after cleanup")
+    ts, salt = Nonce::split_nonce(old_nonce2)
+    assert(@store.use_nonce(server_url, ts, salt), "oldnonce2 after cleanup")
+    ts, salt = Nonce::split_nonce(recent_nonce)
+    assert(!@store.use_nonce(server_url, ts, salt), "recent_nonce after cleanup")
+
+    Nonce.skew = orig_skew
   end
 
 end

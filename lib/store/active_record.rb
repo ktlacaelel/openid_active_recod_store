@@ -8,12 +8,6 @@ module OpenID
 
       include OpenidStoreActiveRecord
 
-      def initialize
-        # XXX XXX XXX REMOVE XXX XXX XXX
-        @nonces = {}
-        # XXX XXX XXX REMOVE XXX XXX XXX
-      end
-
       # Put a Association object into storage.
       # When implementing a store, don't assume that there are any limitations
       # on the character set of the server_url.  In particular, expect to see
@@ -63,40 +57,27 @@ module OpenID
       #       the same second unique
       def use_nonce(server_url, timestamp, salt)
         return false if (timestamp - Time.now.to_i).abs > Nonce.skew
-        nonce = [server_url, timestamp, salt].join('')
-        return false if @nonces[nonce]
-        @nonces[nonce] = timestamp
-        return true
+        params = [timestamp, salt, targetize(server_url)]
+        return false if OpenidNonce.exists_by_target?(*params)
+        return create_nonce(server_url, timestamp, salt)
       end
 
       # Remove expired nonces and associations from the store
       # Not called during normal library operation, this method is for store
       # admins to keep their storage from filling up with expired data
       def cleanup
-        count = 0
-        @associations.each{|server_url, assocs|
-          assocs.each{|handle, assoc|
-            if assoc.expires_in == 0
-              assocs.delete(handle)
-              count += 1
-            end
-          }
-        }
-        return count
+        cleanup_nonces
+        cleanup_associations
       end
 
       # Remove expired associations from the store
       # Not called during normal library operation, this method is for store
       # admins to keep their storage from filling up with expired data
       def cleanup_associations
-        count = 0
-        oas = OpenidAssociation.all.each do |oa|
-          if build_association(oa).expires_in == 0
-            oa.delete
-            count += 1
-          end
+        oas = OpenidAssociation.all.collect do |oa|
+          oa.id if build_association(oa).expires_in == 0
         end
-        return count
+        OpenidAssociation.delete oas.compact
       end
 
       # Remove expired nonces from the store
@@ -104,15 +85,10 @@ module OpenID
       # Not called during normal library operation, this method is for store
       # admins to keep their storage from filling up with expired data
       def cleanup_nonces
-        count = 0
         now = Time.now.to_i
-        @nonces.each{|nonce, timestamp|
-          if (timestamp - now).abs > Nonce.skew
-            @nonces.delete(nonce)
-            count += 1
-          end
-        }
-        return count
+        nonces = OpenidNonce.all
+        ids = nonces.collect { |n| n.id if (n.timestamp - now).abs > Nonce.skew }
+        OpenidNonce.delete ids.compact
       end
 
     end
