@@ -1,4 +1,4 @@
-OpenidStoreActiveRecord
+OpenidActiveRecordStore
 =======================
 
 Introduction
