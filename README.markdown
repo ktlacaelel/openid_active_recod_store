@@ -62,14 +62,20 @@ Installation
 
   1. Install the plugin
      Note: (this will add two migrations and three models to your application)
+    <pre><code>
     $ ./script/plugin install git://github.com/ktlacaelel/openid_active_recod_store.git
+    </pre></code>
 
   2. Migrate
+    <pre><code>
     $ rake db:migrate
+    </pre></code>
 
   3. Setup pass the store object to the openid consumer
+    <pre><code>
     store = OpenID::Store::ActiveRecord.new
     OpenID::Consumer.new(session, store)
+    </pre></code>
 
   4. Enjoy!
 
