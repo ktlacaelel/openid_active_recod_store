@@ -33,7 +33,7 @@ that at least that-minimum-coverage is being supported
 
 Note: only tests concerning the store-drivers where copied
 
-Support for other test-frameworks, well.. if your thinking BDD the
+Which testing-framework is being used? well.. if your thinking BDD the
 only thing I have to say is that an experienced programmer should be
 able to do BDD with almost any testing-framework, BDD is not in the
 framework but in how you code. and trully a lot of smart BDDing is
